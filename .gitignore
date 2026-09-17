@@ -1,0 +1,106 @@
+# ---------------------------------------------------------------------------
+# Secrets and credentials — never push these
+# ---------------------------------------------------------------------------
+.env
+.env.*
+*.env
+.envrc
+secrets/
+*.pem
+*.key
+*.p12
+*.pfx
+*.crt
+*.cer
+credentials.json
+client_secret*.json
+service-account*.json
+*token*.json
+*credentials*.yml
+*credentials*.yaml
+
+# ---------------------------------------------------------------------------
+# Databases and dumps (kept local)
+# ---------------------------------------------------------------------------
+*.db
+*.sqlite
+*.sqlite3
+*.sql
+*.dump
+*.bak
+pgdata/
+postgres_data/
+data/
+
+# ---------------------------------------------------------------------------
+# Python
+# ---------------------------------------------------------------------------
+.venv/
+venv/
+env/
+ENV/
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+build/
+develop-eggs/
+eggs/
+sdist/
+wheels/
+.installed.cfg
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.tox/
+.nox/
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+.python-version
+
+# ---------------------------------------------------------------------------
+# Node / frontend
+# ---------------------------------------------------------------------------
+node_modules/
+dist/
+dist-ssr/
+.vite/
+*.local
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.pnpm-store/
+.eslintcache
+
+# ---------------------------------------------------------------------------
+# Logs, temporary and build output
+# ---------------------------------------------------------------------------
+*.log
+logs/
+tmp/
+temp/
+.cache/
+*.tmp
+*.pid
+*.seed
+*.tsbuildinfo
+
+# ---------------------------------------------------------------------------
+# Documentation and notes (kept local, not published)
+# ---------------------------------------------------------------------------
+*.md
+*.markdown
+
+# ---------------------------------------------------------------------------
+# Editors and OS
+# ---------------------------------------------------------------------------
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+desktop.ini

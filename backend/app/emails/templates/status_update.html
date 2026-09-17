@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% from "base.html" import button, chip %}
+{% block content %}
+<h1 style="margin:0 0 10px;font-size:21px;font-weight:700;color:#171d2b;letter-spacing:-0.3px;">{{ headline }}</h1>
+<p style="margin:0 0 22px;color:#505b74;">Hi {{ user_name }}, here's the latest on your ticket.</p>
+
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 22px;border:1px solid #e4e8f2;border-radius:12px;border-left:3px solid {{ accent }};">
+  <tr><td style="padding:18px 20px;">
+    <p style="margin:0 0 12px;font-size:16px;font-weight:600;color:#171d2b;line-height:1.4;">{{ title }}</p>
+    {{ chip(status | capitalize, status_bg, status_fg) }}
+    {% if assignee_name %}
+    <p style="margin:10px 0 0;font-size:13.5px;color:#7b8794;">Handled by {{ assignee_name }}</p>
+    {% endif %}
+  </td></tr>
+</table>
+
+{{ button(url, "View your ticket", accent) }}
+{% endblock %}
