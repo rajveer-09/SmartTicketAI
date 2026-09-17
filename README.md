@@ -156,7 +156,7 @@ retried job can't send the same email twice.
 | Auth | JWT access tokens, rotating refresh cookies, Google OAuth via Authlib, argon2 hashing |
 | AI | Google Gemini with ordered model fallback |
 | Background jobs | Inngest (Python SDK) |
-| Email | fastapi-mail over Gmail SMTP, with Jinja2 HTML templates |
+| Email | Jinja2 HTML templates, sent over Gmail SMTP or the Brevo API |
 | Frontend | React 19, TypeScript, Vite, Tailwind CSS 4, TanStack Query, React Router |
 | Tests | pytest with pytest-asyncio — 104 tests against a real database |
 
@@ -170,7 +170,8 @@ retried job can't send the same email twice.
 - Node.js 20+
 - A PostgreSQL database (a free [Neon](https://neon.tech) project works)
 - A [Google AI Studio](https://aistudio.google.com) API key
-- A Gmail account with 2-step verification and an [App Password](https://support.google.com/accounts/answer/185833)
+- A Gmail account with 2-step verification and an [App Password](https://support.google.com/accounts/answer/185833),
+  or a [Brevo](https://brevo.com) API key for hosts that block SMTP
 - Google OAuth credentials, if you want "Sign in with Google"
 
 ### Backend
@@ -222,8 +223,10 @@ Create `backend/.env`:
 | `GOOGLE_REDIRECT_URI` | `http://localhost:8000/api/auth/google/callback` |
 | `GEMINI_API_KEY` | Google AI Studio key |
 | `GEMINI_MODELS` | Comma-separated, strongest first |
-| `MAIL_USERNAME`, `MAIL_PASSWORD` | Gmail address and App Password |
-| `MAIL_FROM`, `MAIL_FROM_NAME` | Sender identity |
+| `EMAIL_PROVIDER` | `smtp` locally, `brevo` when the host blocks outbound SMTP |
+| `BREVO_API_KEY` | Brevo API key, when `EMAIL_PROVIDER=brevo` |
+| `MAIL_USERNAME`, `MAIL_PASSWORD` | Gmail address and App Password, when `EMAIL_PROVIDER=smtp` |
+| `MAIL_FROM`, `MAIL_FROM_NAME` | Sender identity (both providers) |
 | `MAIL_SERVER`, `MAIL_PORT` | `smtp.gmail.com`, `587` |
 | `ADMIN_EMAIL`, `ADMIN_PASSWORD`, `ADMIN_NAME` | The first admin, created by the seed script |
 | `INNGEST_DEV` | `1` locally; `0` with Inngest Cloud |

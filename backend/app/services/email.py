@@ -1,7 +1,13 @@
-"""Sends templated HTML email through Gmail SMTP (fastapi-mail).
+"""Renders and sends the templated HTML emails.
 
-When MAIL_* settings are empty (local development), emails are logged instead of sent.
-Phase 4 moves these calls into Inngest functions with idempotency keys.
+Two ways out, chosen with EMAIL_PROVIDER:
+
+- `smtp`  — Gmail SMTP, fine locally.
+- `brevo` — Brevo's HTTPS API. Needed on hosts like Render that block outbound SMTP
+            ports (25/465/587); port 443 is never blocked.
+
+Rendering is identical either way, so an email looks the same whichever path it takes.
+When nothing is configured (local development) the email is logged instead of sent.
 """
 
 import logging
@@ -9,13 +15,18 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
+import httpx
 from fastapi_mail import ConnectionConfig, FastMail, MessageSchema, MessageType
+from jinja2 import Environment, FileSystemLoader, select_autoescape
 
 from app.core.config import settings
 
 logger = logging.getLogger(__name__)
 
 TEMPLATE_DIR = Path(__file__).resolve().parents[1] / "emails" / "templates"
+
+BREVO_ENDPOINT = "https://api.brevo.com/v3/smtp/email"
+SEND_TIMEOUT_SECONDS = 30
 
 # Each template's brand band: indigo normally, amber when an admin has to act.
 ACCENTS: dict[str, tuple[str, str]] = {
@@ -25,7 +36,15 @@ DEFAULT_ACCENT = ("#3b55d9", "#6b86f0")
 
 
 @lru_cache
-def _mailer() -> FastMail:
+def _templates() -> Environment:
+    return Environment(
+        loader=FileSystemLoader(str(TEMPLATE_DIR)),
+        autoescape=select_autoescape(["html"]),
+    )
+
+
+@lru_cache
+def _smtp() -> FastMail:
     return FastMail(
         ConnectionConfig(
             MAIL_USERNAME=settings.mail_username,
@@ -43,6 +62,35 @@ def _mailer() -> FastMail:
     )
 
 
+def render(template: str, context: dict[str, Any]) -> str:
+    return _templates().get_template(template).render(**context)
+
+
+async def _send_via_smtp(to: str, subject: str, html: str) -> None:
+    message = MessageSchema(subject=subject, recipients=[to], body=html, subtype=MessageType.html)
+    await _smtp().send_message(message)
+
+
+async def _send_via_brevo(to: str, subject: str, html: str) -> None:
+    payload = {
+        "sender": {"name": settings.mail_from_name, "email": settings.mail_from},
+        "to": [{"email": to}],
+        "subject": subject,
+        "htmlContent": html,
+    }
+    async with httpx.AsyncClient(timeout=SEND_TIMEOUT_SECONDS) as client:
+        response = await client.post(
+            BREVO_ENDPOINT,
+            json=payload,
+            headers={"api-key": settings.brevo_api_key, "accept": "application/json"},
+        )
+    if response.status_code >= 400:
+        # Brevo explains refusals in the body: unverified sender, bad key, quota.
+        raise RuntimeError(
+            f"Brevo refused the email ({response.status_code}): {response.text[:300]}"
+        )
+
+
 async def send_email(to: str, subject: str, template: str, context: dict[str, Any]) -> None:
     accent, accent_light = ACCENTS.get(template, DEFAULT_ACCENT)
     body = {
@@ -56,17 +104,23 @@ async def send_email(to: str, subject: str, template: str, context: dict[str, An
 
     if not settings.mail_enabled:
         if settings.environment == "production":
-            raise RuntimeError("MAIL_* settings are required in production")
-        logger.warning("MAIL not configured; would send %r to %s: %s", template, to, context)
+            raise RuntimeError(
+                "Email is not configured. Set EMAIL_PROVIDER with either BREVO_API_KEY "
+                "or the MAIL_* SMTP settings."
+            )
+        logger.warning("Email not configured; would send %r to %s: %s", template, to, context)
         return
 
-    message = MessageSchema(
-        subject=subject, recipients=[to], template_body=body, subtype=MessageType.html
-    )
+    html = render(template, body)
     try:
-        await _mailer().send_message(message, template_name=template)
+        if settings.email_provider == "brevo":
+            await _send_via_brevo(to, subject, html)
+        else:
+            await _send_via_smtp(to, subject, html)
     except Exception:
-        logger.exception("Failed to send %r email to %s", template, to)
+        logger.exception(
+            "Failed to send %r email to %s via %s", template, to, settings.email_provider
+        )
         raise
 
 

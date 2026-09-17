@@ -50,7 +50,9 @@ class Settings(BaseSettings):
     gemini_api_key: str = ""
     gemini_models: str = Field(default="", description="Comma-separated, strongest first")
 
-    # Email (Phase 2/4)
+    # Email: "smtp" locally, "brevo" on hosts that block outbound SMTP ports.
+    email_provider: Literal["smtp", "brevo"] = "smtp"
+    brevo_api_key: str = ""
     mail_username: str = ""
     mail_password: str = ""
     mail_from: str = ""
@@ -70,7 +72,11 @@ class Settings(BaseSettings):
 
     @property
     def mail_enabled(self) -> bool:
-        return bool(self.mail_username and self.mail_password and self.mail_from)
+        if not self.mail_from:
+            return False
+        if self.email_provider == "brevo":
+            return bool(self.brevo_api_key)
+        return bool(self.mail_username and self.mail_password)
 
     @property
     def google_oauth_enabled(self) -> bool:
