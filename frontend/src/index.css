@@ -1,59 +1,12 @@
 @import "tailwindcss";
 
-/* A small script in index.html stamps data-theme on <html> before paint, so this is
-   the only selector the theme needs. */
+/* The app is dark-only: <html> carries data-theme="dark" so the handful of
+   `dark:` utilities (status chips, danger buttons) still resolve. */
 @custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
 
 @theme {
-  /* Neutrals: cool and slightly blue-tinted, so glass reads as glass.
-     The dark theme inverts this ramp (see below), which is why components can say
-     text-ink-900 everywhere and stay readable in both themes. */
-  --color-ink-50: #f7f8fc;
-  --color-ink-100: #eef1f7;
-  --color-ink-200: #e2e6f0;
-  --color-ink-300: #c9d0e0;
-  --color-ink-400: #98a2ba;
-  --color-ink-500: #6f7a95;
-  --color-ink-600: #505b74;
-  --color-ink-700: #3a4459;
-  --color-ink-800: #2a3244;
-  --color-ink-900: #171d2b;
-
-  /* One accent, used for actions and the active state. */
-  --color-accent-50: #eef2ff;
-  --color-accent-100: #e0e7ff;
-  --color-accent-200: #c7d2fe;
-  --color-accent-400: #6b86f0;
-  --color-accent-500: #4f6fe5;
-  --color-accent-600: #3b55d9;
-  --color-accent-700: #2f43ad;
-
-  /* Semantic surfaces: the glass system. Alpha is baked in, so these swap cleanly
-     between themes without every component knowing which theme is active. */
-  --color-surface: rgb(255 255 255 / 0.72);
-  --color-surface-hover: rgb(255 255 255 / 0.88);
-  --color-bar: rgb(255 255 255 / 0.66);
-  --color-well: rgb(247 248 252 / 0.72);
-  --color-field: rgb(255 255 255 / 0.6);
-  --color-field-hover: rgb(255 255 255 / 0.78);
-  --color-field-focus: rgb(255 255 255 / 0.92);
-  --color-line: rgb(255 255 255 / 0.68);
-  --color-line-soft: rgb(255 255 255 / 0.5);
-
-  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-
-  /* Layered, soft shadows — depth without heaviness. */
-  --shadow-glass: 0 1px 2px rgb(23 29 43 / 0.04), 0 8px 24px -12px rgb(23 29 43 / 0.12);
-  --shadow-raised: 0 1px 2px rgb(23 29 43 / 0.05), 0 16px 36px -18px rgb(23 29 43 / 0.22);
-  --shadow-accent: 0 2px 6px -1px rgb(59 85 217 / 0.3), 0 10px 22px -12px rgb(59 85 217 / 0.5);
-
-  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-/* --- Dark theme -----------------------------------------------------------
-   The ink ramp is inverted (50 = darkest, 900 = lightest) so every existing
-   text-ink-900 / bg-ink-100 usage keeps its meaning. Only the values change. */
-[data-theme="dark"] {
+  /* Neutrals, darkest to lightest. 50 is the page furniture, 900 is the
+     strongest text — so text-ink-900 always means "most prominent". */
   --color-ink-50: #10151f;
   --color-ink-100: #161c28;
   --color-ink-200: #222a3a;
@@ -65,6 +18,7 @@
   --color-ink-800: #e2e8f3;
   --color-ink-900: #f4f7fd;
 
+  /* One accent, used for actions and the active state. */
   --color-accent-50: rgb(99 126 245 / 0.16);
   --color-accent-100: rgb(99 126 245 / 0.26);
   --color-accent-200: rgb(129 152 255 / 0.4);
@@ -73,6 +27,8 @@
   --color-accent-600: #5570e8;
   --color-accent-700: #a9b8ff;
 
+  /* Semantic surfaces: the glass system. Alpha is baked in so panels layer
+     correctly over the gradient backdrop. */
   --color-surface: rgb(28 35 52 / 0.66);
   --color-surface-hover: rgb(38 47 68 / 0.82);
   --color-bar: rgb(18 24 38 / 0.72);
@@ -83,9 +39,14 @@
   --color-line: rgb(255 255 255 / 0.1);
   --color-line-soft: rgb(255 255 255 / 0.06);
 
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+
+  /* Layered shadows — depth without heaviness. */
   --shadow-glass: 0 1px 2px rgb(0 0 0 / 0.2), 0 10px 28px -14px rgb(0 0 0 / 0.6);
   --shadow-raised: 0 1px 2px rgb(0 0 0 / 0.25), 0 20px 44px -20px rgb(0 0 0 / 0.75);
   --shadow-accent: 0 2px 8px -2px rgb(85 112 232 / 0.45), 0 12px 26px -14px rgb(85 112 232 / 0.6);
+
+  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 @layer base {
@@ -103,28 +64,16 @@
     line-height: 1.55;
     letter-spacing: -0.006em;
     -webkit-font-smoothing: antialiased;
-    background-color: #eef1f8;
+    background-color: #0d111c;
   }
 
-  /* The page's light source: soft colour fields the glass picks up. Fixed, so panels
-     blur against a stable backdrop while content scrolls. */
+  /* The page's light source: soft colour fields the glass picks up. Fixed, so
+     panels blur against a stable backdrop while content scrolls. */
   body::before {
     content: "";
     position: fixed;
     inset: 0;
     z-index: -1;
-    background:
-      radial-gradient(52rem 32rem at 12% -8%, rgb(129 152 255 / 0.28), transparent 60%),
-      radial-gradient(44rem 30rem at 96% 4%, rgb(153 214 255 / 0.26), transparent 62%),
-      radial-gradient(40rem 34rem at 76% 96%, rgb(196 174 255 / 0.2), transparent 64%),
-      linear-gradient(180deg, #f4f6fc 0%, #e9edf7 100%);
-  }
-
-  [data-theme="dark"] body {
-    background-color: #0d111c;
-  }
-
-  [data-theme="dark"] body::before {
     background:
       radial-gradient(52rem 32rem at 12% -8%, rgb(74 100 220 / 0.3), transparent 60%),
       radial-gradient(44rem 30rem at 96% 4%, rgb(40 118 190 / 0.26), transparent 62%),
@@ -157,8 +106,8 @@
 
 @layer components {
   /* --- Glass surfaces ---
-     One translucent panel style, used by cards, bars and menus. saturate() keeps the
-     colour behind a panel from going grey. */
+     One translucent panel style, used by cards, bars and menus. saturate() keeps
+     the colour behind a panel from going grey. */
   .glass {
     background: var(--color-surface);
     backdrop-filter: blur(20px) saturate(160%);
@@ -172,14 +121,14 @@
     backdrop-filter: blur(24px) saturate(180%);
     -webkit-backdrop-filter: blur(24px) saturate(180%);
     border-bottom: 1px solid var(--color-line);
-    box-shadow: 0 1px 0 rgb(23 29 43 / 0.04);
+    box-shadow: 0 1px 0 rgb(0 0 0 / 0.2);
   }
 
   /* A recessed well for quoted content: descriptions, AI notes, messages. */
   .glass-well {
     background: var(--color-well);
     border: 1px solid var(--color-line-soft);
-    box-shadow: inset 0 1px 2px rgb(23 29 43 / 0.03);
+    box-shadow: inset 0 1px 2px rgb(0 0 0 / 0.18);
   }
 
   /* Hairline highlight along the top edge, the way real glass catches light. */
@@ -195,21 +144,11 @@
     background: linear-gradient(
       90deg,
       transparent,
-      rgb(255 255 255 / 0.9) 22%,
-      rgb(255 255 255 / 0.9) 78%,
-      transparent
-    );
-    pointer-events: none;
-  }
-
-  [data-theme="dark"] .glass-edge::after {
-    background: linear-gradient(
-      90deg,
-      transparent,
       rgb(255 255 255 / 0.14) 22%,
       rgb(255 255 255 / 0.14) 78%,
       transparent
     );
+    pointer-events: none;
   }
 }
 
@@ -284,12 +223,8 @@
     position: absolute;
     inset: 0;
     transform: translateX(-100%);
-    background: linear-gradient(90deg, transparent, rgb(255 255 255 / 0.65), transparent);
-    animation: sheen 1.6s infinite;
-  }
-
-  [data-theme="dark"] .shimmer::after {
     background: linear-gradient(90deg, transparent, rgb(255 255 255 / 0.08), transparent);
+    animation: sheen 1.6s infinite;
   }
 }
 

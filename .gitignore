@@ -89,10 +89,12 @@ temp/
 *.tsbuildinfo
 
 # ---------------------------------------------------------------------------
-# Documentation and notes (kept local, not published)
+# Documentation and notes (kept local, not published) — except the README,
+# which GitHub needs, and it holds no secrets.
 # ---------------------------------------------------------------------------
 *.md
 *.markdown
+!/README.md
 
 # ---------------------------------------------------------------------------
 # Editors and OS

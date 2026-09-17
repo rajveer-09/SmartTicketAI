@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 
 import { useAuth } from "../../lib/auth";
-import { ThemeToggle } from "../ThemeToggle";
 import type { Role } from "../../lib/types";
 import { Button, cx } from "../ui";
 
@@ -131,7 +130,6 @@ export function AppShell() {
           <Brand />
 
           <div className="ml-auto flex items-center gap-3">
-            <ThemeToggle className="hidden sm:inline-flex" />
             <div className="hidden text-right sm:block">
               <p className="text-[13px] font-medium leading-tight text-ink-800">{user.full_name}</p>
               <p className="text-[12px] capitalize leading-tight text-ink-500">{user.role}</p>
@@ -169,7 +167,6 @@ export function AppShell() {
             >
               <Brand className="mb-7" />
               {nav}
-              <ThemeToggle className="mt-7" />
             </div>
           </div>
         )}

@@ -2,7 +2,6 @@ import type { ReactNode } from "react";
 import { Link } from "react-router-dom";
 
 import { Brand } from "../../components/layout/AppShell";
-import { ThemeToggle } from "../../components/ThemeToggle";
 import { Card } from "../../components/ui";
 
 export function AuthLayout({
@@ -17,8 +16,7 @@ export function AuthLayout({
   footer?: ReactNode;
 }) {
   return (
-    <div className="relative flex min-h-screen items-center justify-center px-4 py-12">
-      <ThemeToggle className="absolute right-4 top-4 sm:right-6 sm:top-6" />
+    <div className="flex min-h-screen items-center justify-center px-4 py-12">
       <div className="animate-rise w-full max-w-100">
         <Link to="/" className="mb-7 flex justify-center">
           <Brand />
